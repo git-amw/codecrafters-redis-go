@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net"
 	"os"
@@ -28,8 +29,24 @@ func main() {
 			os.Exit(1)
 		}
 		go func(conn net.Conn) {
-			// defer conn.Close()
-			conn.Write([]byte("+PONG\r\n"))
+			defer conn.Close()
+			reader := bufio.NewReader(conn)
+
+			// Loop to continuously handle messages from the same connection
+			for {
+				// Read incoming data
+				message, err := reader.ReadString('\n')
+				if err != nil {
+					fmt.Println("Error reading from client:", err)
+					return
+				}
+
+				// Process the message, respond with PONG if it's a ping
+				fmt.Printf("Received: %s", message)
+				if message == "ping\r\n" {
+					conn.Write([]byte("+PONG\r\n"))
+				}
+			}
 		}(conn)
 	}
 }
