@@ -42,7 +42,6 @@ func main() {
 				}
 
 				// Process the message, respond with PONG if it's a ping
-				fmt.Printf("Received: %s", message)
 				if message == "ping\r\n" {
 					conn.Write([]byte("+PONG\r\n"))
 				}
