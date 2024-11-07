@@ -28,7 +28,7 @@ func main() {
 			os.Exit(1)
 		}
 		go func(conn net.Conn) {
-			defer conn.Close()
+			// defer conn.Close()
 			conn.Write([]byte("+PONG\r\n"))
 		}(conn)
 	}
