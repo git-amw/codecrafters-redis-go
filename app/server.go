@@ -1,8 +1,9 @@
 package main
 
 import (
-	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 )
@@ -30,21 +31,22 @@ func main() {
 		}
 		go func(conn net.Conn) {
 			defer conn.Close()
-			reader := bufio.NewReader(conn)
 
 			// Loop to continuously handle messages from the same connection
+			buf := make([]byte, 128)
 			for {
 				// Read incoming data
-				message, err := reader.ReadString('\n')
+				_, err := conn.Read(buf)
+				if errors.Is(err, io.EOF) {
+					break
+				}
 				if err != nil {
 					fmt.Println("Error reading from client:", err)
 					return
 				}
 
 				// Process the message, respond with PONG if it's a ping
-				if message == "ping\r\n" {
-					conn.Write([]byte("+PONG\r\n"))
-				}
+				conn.Write([]byte("+PONG\r\n"))
 			}
 		}(conn)
 	}
